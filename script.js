@@ -1,4 +1,4 @@
-function compareFiles() {
+document.getElementById('compareButton').addEventListener('click', function () {
     const xmlFileInput = document.getElementById('xmlFileInput');
     const excelFileInput = document.getElementById('excelFileInput');
     const resultDiv = document.getElementById('result');
@@ -13,25 +13,24 @@ function compareFiles() {
 
     const reader = new FileReader();
 
-    reader.onload = function(event) {
+    reader.onload = function (event) {
         const xmlText = event.target.result;
 
-        // Here, you can use JavaScript libraries like 'xlsx' for Excel parsing
-        // and 'DOMParser' for XML parsing to replicate the functionality of the Java code.
-        // Due to the complexity of Excel parsing, using a library like 'xlsx' is recommended.
+        // Parse Excel file using xlsx library
+        const excelData = XLSX.read(event.target.result, { type: 'binary' });
 
-        // Sample code for parsing XML using DOMParser:
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+        // Access data from the first sheet (assuming it's the only sheet)
+        const sheetName = excelData.SheetNames[0];
+        const sheet = excelData.Sheets[sheetName];
 
         // Sample code for comparing data from Excel and XML
         const xmlData = xmlDoc.getElementsByTagName('your_element_name');
-        const excelData = ['Data1', 'Data2', 'Data3']; // Example Excel data
+        const excelDataFromSheet = XLSX.utils.sheet_to_json(sheet);
 
         let assertionFailed = false;
 
-        for (let i = 0; i < excelData.length; i++) {
-            if (excelData[i] !== xmlData[i].textContent) {
+        for (let i = 0; i < excelDataFromSheet.length; i++) {
+            if (excelDataFromSheet[i]['ColumnHeader'] !== xmlData[i].textContent) {
                 assertionFailed = true;
                 break;
             }
@@ -44,7 +43,5 @@ function compareFiles() {
         }
     };
 
-    reader.readAsText(xmlFile);
-}
-
-document.getElementById('compareButton').addEventListener('click', compareFiles);
+    reader.readAsBinaryString(excelFile); // Read Excel file as binary
+});
