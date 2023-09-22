@@ -33,7 +33,7 @@ document.getElementById('compareButton').addEventListener('click', function () {
         // Sample code for comparing data from Excel and XML
         const excelDataFromSheet = XLSX.utils.sheet_to_json(sheet);
 
-        let assertionFailed = true;
+        let assertionFailed = false;
 
         for (let i = 0; i < excelDataFromSheet.length; i++) {
             if (excelDataFromSheet[i]['ColumnHeader'] !== xmlData[i]) {
