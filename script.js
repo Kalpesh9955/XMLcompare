@@ -45,7 +45,11 @@ document.getElementById('compareButton').addEventListener('click', function () {
         if (assertionFailed) {
             resultDiv.innerHTML = 'Assertion failed: Data does not match.';
         } else {
-            resultDiv.innerHTML = 'Data matches!';
+            resultDiv.innerHTML = 'Data matches!<br>';
+            resultDiv.innerHTML += '<h2>Matched Data:</h2>';
+            for (let i = 0; i < xmlData.length; i++) {
+                resultDiv.innerHTML += `<p>${xmlData[i]}</p>`;
+            }
         }
     };
 
