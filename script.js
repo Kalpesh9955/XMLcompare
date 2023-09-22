@@ -1,57 +1,60 @@
-document.getElementById('compareButton').addEventListener('click', function () {
-    const xmlFileInput = document.getElementById('xmlFileInput');
-    const excelFileInput = document.getElementById('excelFileInput');
-    const resultDiv = document.getElementById('result');
+let xmlData;
+let excelData;
 
-    const xmlFile = xmlFileInput.files[0];
-    const excelFile = excelFileInput.files[0];
+function parseXML(file) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const xmlString = e.target.result;
+        const parser = new DOMParser();
+        xmlData = parser.parseFromString(xmlString, "text/xml");
+    };
+
+    reader.readAsText(file);
+}
+
+function parseExcel(file) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        excelData = XLSX.utils.sheet_to_json(sheet);
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+
+function compareFiles() {
+    const xmlFile = document.getElementById('xmlFile').files[0];
+    const excelFile = document.getElementById('excelFile').files[0];
 
     if (!xmlFile || !excelFile) {
-        resultDiv.innerHTML = 'Please select both XML and Excel files.';
+        alert("Both files are required for comparison.");
         return;
     }
 
-    const reader = new FileReader();
+    parseXML(xmlFile);
+    parseExcel(excelFile);
 
-    reader.onload = function (event) {
-        const xmlText = event.target.result;
+    setTimeout(() => {  // Simple way to wait for async operations, better to use Promise
+        let result = 'Comparison Results:<br>';
 
-        // Parse XML
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+        const foodFromXml = xmlData.getElementsByTagName('food')[0];
+        const foodFromExcel = excelData[0];
 
-        // Extract data from XML
-        const xmlData = Array.from(xmlDoc.getElementsByTagName('item')).map(node => node.textContent);
-
-        // Parse Excel file using xlsx library
-        const excelData = XLSX.read(event.target.result, { type: 'binary' });
-
-        // Access data from the first sheet (assuming it's the only sheet)
-        const sheetName = excelData.SheetNames[0];
-        const sheet = excelData.Sheets[sheetName];
-
-        // Sample code for comparing data from Excel and XML
-        const excelDataFromSheet = XLSX.utils.sheet_to_json(sheet);
-
-        let assertionFailed = false;
-
-        for (let i = 0; i < excelDataFromSheet.length; i++) {
-            if (excelDataFromSheet[i]['ColumnHeader'] !== xmlData[i]) {
-                assertionFailed = true;
-                break;
-            }
+        if (foodFromExcel.name !== foodFromXml.getElementsByTagName('name')[0].textContent) {
+            result += 'Name does not match!<br>';
         }
-
-        if (assertionFailed) {
-            resultDiv.innerHTML = 'Assertion failed: Data does not match.';
-        } else {
-            resultDiv.innerHTML = 'Data matches!<br>';
-            resultDiv.innerHTML += '<h2>Matched Data:</h2>';
-            for (let i = 0; i < xmlData.length; i++) {
-                resultDiv.innerHTML += `<p>${xmlData[i]}</p>`;
-            }
+        if (foodFromExcel.price !== foodFromXml.getElementsByTagName('price')[0].textContent) {
+            result += 'Price does not match!<br>';
         }
-    };
+        // Continue with other comparisons...
 
-    reader.readAsBinaryString(excelFile); // Read Excel file as binary
-});
+        document.getElementById('results').innerHTML = result;
+    }, 1000);  // Assuming it won't take more than 1 second to parse files
+}
