@@ -16,6 +16,13 @@ document.getElementById('compareButton').addEventListener('click', function () {
     reader.onload = function (event) {
         const xmlText = event.target.result;
 
+        // Parse XML
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+        // Extract data from XML
+        const xmlData = Array.from(xmlDoc.getElementsByTagName('item')).map(node => node.textContent);
+
         // Parse Excel file using xlsx library
         const excelData = XLSX.read(event.target.result, { type: 'binary' });
 
@@ -24,13 +31,12 @@ document.getElementById('compareButton').addEventListener('click', function () {
         const sheet = excelData.Sheets[sheetName];
 
         // Sample code for comparing data from Excel and XML
-        const xmlData = xmlDoc.getElementsByTagName('your_element_name');
         const excelDataFromSheet = XLSX.utils.sheet_to_json(sheet);
 
         let assertionFailed = false;
 
         for (let i = 0; i < excelDataFromSheet.length; i++) {
-            if (excelDataFromSheet[i]['ColumnHeader'] !== xmlData[i].textContent) {
+            if (excelDataFromSheet[i]['ColumnHeader'] !== xmlData[i]) {
                 assertionFailed = true;
                 break;
             }
