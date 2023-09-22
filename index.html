@@ -1,21 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>XML Excel Comparator</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-    
+    <meta charset="UTF-8">
+    <title>Compare XML and Excel</title>
 </head>
 <body>
-    <h1>XML Excel Comparator</h1>
+    <input type="file" id="xmlFile" accept=".xml" placeholder="Upload XML file" />
+    <input type="file" id="excelFile" accept=".xlsx" placeholder="Upload Excel file" />
+    <button onclick="compareFiles()">Compare</button>
 
-    <input type="file" id="xmlFileInput" accept=".xml">
-    <input type="file" id="excelFileInput" accept=".xlsx">
+    <div id="results"></div>
 
-    <button id="compareButton">Compare Files</button>
-
-    <div id="result"></div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="compare.js"></script>
 </body>
 </html>
